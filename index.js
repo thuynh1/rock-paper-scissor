@@ -1,86 +1,157 @@
-let playerScore = 0
-let computerScore = 0
-let playerSelection = "";
-let computerSelection = "";
+// GLOBALS
+let p1Score = 0;
+let p2Score = 0;
+let p1Selection = "";
+let p2Selection = "";
+let currentRound = 0;
+const maxPoints = 5;
 
-const lose = -1;
-const tie = 0;
-const win = 1;
-const maxRounds = 5;
-const options = ["rock", "paper", "scissor"]
-const outcome = {
-    "rock": {"rock": tie, "paper": lose, "scissor": win},
-    "paper": {"rock": win, "paper": tie, "scissor": lose},
-    "scissor": {"rock": lose, "paper": win, "scissor": tie}
-}
+const shape = {
+    ROCK: "rock",
+    PAPER: "paper",
+    SCISSOR: "scissor",
+};
 
-// Helper functions
-function getRandomIntInclusive(min=0, max=2) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1) + min);
-}
+const result = {
+    LOSE: -1,
+    TIE: 0,
+    WIN: 1,
+};
 
-// Computer functions
-function computerSelect() {
-    return options[getRandomIntInclusive()]
-}
+const outcomes = {
+    "rock": {
+        "rock": result.TIE,
+        "paper": result.LOSE,
+        "scissor": result.WIN
+    },
+    "paper": {
+        "rock": result.WIN,
+        "paper": result.TIE,
+        "scissor": result.LOSE
+    },
+    "scissor": {
+        "rock": result.LOSE,
+        "paper": result.WIN,
+        "scissor": result.TIE
+    },
+};
 
-// Player functions
-function playerSelect() {
-    while (true) {
-        let input = prompt("Enter (Rock, Paper, or Scissor): ")
-        let normalizedInput = input.toLowerCase()
-        if (normalizedInput == "rock" ||
-            normalizedInput == "paper" ||
-            normalizedInput == "scissor") {
-            return normalizedInput
-        } else {
-            alert("Invalid option!")
-        }
-    }
-}
+// Helpers
+const getRandomShape = () => {
+    const keys = Object.keys(shapes);
+    return shapes[keys[keys.length * Math.random() << 0]];
+};
 
-function playRound(playerSelection, computerSelection) {
-    return outcome[playerSelection][computerSelection]
-}
+// Game functions
 
-function tally(result) {
-    switch (result) {
-        case lose:
-            computerScore++
+const resetGame = () => {
+    p1Score = 0;
+    p2Score = 0;
+    currentRound = 0;
+
+    player1Score.textContent = p1Score;
+    player2Score.textContent = p2Score;
+    round.textContent = currentRound;
+
+    resultRound.textContent = "";
+    resultRound.classList.remove("result__round--hide");
+    resultFinal.classList.add("result__final--hide");
+};
+
+const isGameOver = () => {
+    return (p1Score == maxPoints || p2Score == maxPoints) ? true : false;
+};
+
+const showRoundResults = (outcome) => {
+    resultRound.classList.remove("result__round--hide");
+    let statement = "";
+    switch (outcome) {
+        case result.LOSE:
+            statement = `${p1Selection} loses to ${p2Selection}`;
             break;
-        case win:
-            playerScore++
+        case result.TIE:
+            statement = `${p1Selection} ties with ${p2Selection}`;
             break;
-        case tie:
+        case result.WIN:
+            statement = `${p1Selection} wins against ${p2Selection}`;
+            break;
+    };
+    resultRound.textContent = statement;
+};
+
+const showFinalResults = () => {
+    resultRound.classList.add("result__round--hide");
+    resultFinal.classList.remove("result__final--hide");
+    resultFinal.textContent = "Game complete!";
+};
+
+const updateRound = () => {
+    currentRound += 1;
+    round.textContent = currentRound;
+};
+
+const updateScores = (outcome) => {
+    switch (outcome) {
+        case result.LOSE:
+            p2Score += 1;
+            break;
+        case result.WIN:
+            p1Score += 1;
+            break;
+        case result.TIE:
         default:
             break;
+    };
+
+    // Update HTML score elements
+    player1Score.textContent = p1Score;
+    player2Score.textContent = p2Score;
+};
+
+const getOutcome = (playerSelection, computerSelection) => {
+    return outcomes[playerSelection][computerSelection];
+};
+
+const getPlayer1Selection = (option) => {
+    if (Object.values(shape).indexOf(option) > -1) {
+        p1Selection = option;
+        return option;
+    };
+};
+
+const getPlayer2Selection = () => {
+    let keys = Object.keys(shape);
+    let option = shape[keys[keys.length * Math.random() << 0]];
+    p2Selection = option;
+    return option;
+};
+
+const playRoundHandler = (event) => {
+    let option = event.target.id;
+    if (!option) return;
+
+    updateRound();
+
+    let playerSelection = getPlayer1Selection(option);
+    let computerSelection = getPlayer2Selection();
+
+    let outcome = getOutcome(playerSelection, computerSelection);
+    showRoundResults(outcome);
+    updateScores(outcome);
+
+    if (isGameOver()) {
+        showFinalResults();
+        return;
     }
-}
+};
 
-function main() {
-    for (let round = 1; round <= maxRounds; round++) {
-        playerSelection = playerSelect()
-        computerSelection = computerSelect()
+const round = document.querySelector(".round__number");
+const player1Score = document.querySelector(".score__player-1");
+const player2Score = document.querySelector(".score__player-2");
+const resultRound = document.querySelector(".result__round");
+const resultFinal = document.querySelector(".result__final");
+const shapes = document.querySelectorAll(".shape__button");
+const gameReplayBtn = document.querySelector(".game__replay-btn");
 
-        let result = playRound(playerSelection, computerSelection)
-        tally(result)
-
-        let message = ""
-        switch (result) {
-            case lose:
-                message = `You Lose!, ${computerSelection} beats ${playerSelection}`
-                break;
-            case tie:
-                message = `You Tied! Both players selected ${playerSelection}`
-                break;
-            case win:
-                message = `You Win! ${playerSelection} beats ${computerSelection}`
-        }
-        alert(message);
-    }
-    alert(`FINAL SCORE\n\tPlayer: ${playerScore}\n\tComputer: ${computerScore}`)
-}
-
-main()
+gameReplayBtn.addEventListener("click", resetGame);
+shapes.forEach((shape) => shape.addEventListener("click", playRoundHandler));

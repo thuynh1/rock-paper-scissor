@@ -1,9 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <title>Rock, Paper, Scissor!</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Let's Play - Rock, Paper, Scissor!</h1>
+    <div class="game">
+        <div class="game__title">Rock, Paper, Scissor!</div>
+        <div class="round">
+            <span class="round__title">Round</span>
+            <span class="round__number">0</span>
+        </div>
+        <div class="player">
+            <div class="player__1">Player1</div>
+            <div class="player__2">Player2</div>
+        </div>
+        <div class=score>
+            <div class="score__player-1">0</div>
+            <div class="score__divider">-</div>
+            <div class="score__player-2">0</div>
+        </div>
+        <div class="result">
+            <div class="result__round result__round--hide"> </div>
+            <div class="result__final result__final--hide">Results here!</div>
+        </div>
+        <div class="shape">
+            <button id="rock" class="shape__button" value="rock">Rock</button>
+            <button id="paper" class="shape__button" value="paper">Paper</button>
+            <button id="scissor" class="shape__button" value="scissor">Scissor</button>
+        </div>
+        <button class="game__replay-btn game__replay-btn--hide">Play again?</button>
+    </div>
 </body>
 <script src="index.js" type="text/javascript"></script>
 </html>
